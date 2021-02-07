@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport"
+	      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<meta name="ad.size" content="width=400,height=400">
+	<script type="text/javascript">
+		var clickTag = "http://www.google.com"; </script>
+	</head>
+	<title>Document</title>
+</head>
+<body>
+<style>
+    #canvas {
+        display: block;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 10px 10px #cbcbcb;
+        border-radius: 10px;
+        color: black;
+    }
+
+    .scene {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: 100vh;
+        background: #eeeeee;
+    }
+</style>
+<a href="javascript:window.open(window.clickTag)">
+	<div class="scene">
+		<canvas id="canvas" width="400px" height="400px"></canvas>
+	</div>
+</a>
+
+<script>
+	window.onload = function () {
+
+		var random = function (min, max) {
+			let rand = min + Math.random() * (max + 1 - min);
+			return Math.floor(rand);
+		}
+
+		var canvas = document.getElementById('canvas')
+		var ctx = canvas.getContext('2d');
+		ctx.fillStyle = "white"
+		ctx.font = "32px Verdana"
+
+		var isGame = true;
+		var needScore = 10;
+
+		var sceneHeight = canvas.height
+		var posX;
+		var randomPosX = function () {
+			return posX = random(30, canvas.width - 30)
+		};
+		var posY = 20;
+		var speedY = 4;
+		var basketHeight = 40;
+		var basketWidth = 80;
+		var recStart = canvas.width / 2 - 35;
+		var score = 0;
+		var mouseX = 0;
+
+		var msgX = 65
+		var msgY = -300
+
+		randomPosX()
+		var foodPosition = function () {
+			//ctx.clearRect(0, 0, canvas.width, canvas.height);
+			if (isGame) {
+				if (posY > canvas.height - 110) {
+					posY = 0;
+					randomPosX();
+					foodRandom();
+				}
+				posY += speedY;
+				ctx.drawImage(foodCurrent, posX, posY, 55, 55);
+			}
+		}
+
+		//IMAGES
+		var basket = new Image();
+		var food = new Image();
+		var bg = new Image();
+		var msg = new Image();
+		var scoreImg = new Image();
+
+
+		var foodList = ['food-1.png', 'food-2.png', 'food-3.png', 'food-4.png']
+		var foodListImg = []
+		var foodCurrent;
+		foodList.forEach(function (el) {
+			var item = new Image()
+			item.src = el
+			foodListImg.push(item)
+		})
+		var foodRandom = function () {
+			foodCurrent = foodListImg[random(0, foodListImg.length - 1)]
+			return foodCurrent
+		}
+		foodRandom()
+
+		basket.src = 'basket.png';
+		food.src = 'food-1.png';
+		bg.src = 'bg.jpg';
+		msg.src = 'giftbox.png'
+		scoreImg.src = 'score.png'
+
+		//IMAGES === end
+
+
+		canvas.addEventListener("mousemove", function (e) {
+			var cRect = canvas.getBoundingClientRect();
+			mouseX = Math.round(e.clientX - cRect.left);
+			if (mouseX > canvas.width - basketWidth) {
+				recStart = canvas.width - basketWidth;
+			}
+			recStart = mouseX - basketWidth / 2;
+		});
+
+		var catchFood = function () {
+			if (mouseX > posX - 35 && mouseX < posX + 35 && posY > sceneHeight - 130) {
+				++score;
+				posY = 0;
+				randomPosX();
+				foodRandom();
+			}
+			if (score === needScore) {
+				msgY < 60 ? msgY += 15 : ''
+				isGame = false;
+			}
+		}
+
+		function draw() {
+			ctx.drawImage(bg, 0, 0, 400, 400);
+			ctx.drawImage(scoreImg, 20, 20, 80, 50);
+			foodPosition();
+			catchFood();
+			ctx.fillText(score, 110, 57);
+			ctx.drawImage(basket, recStart, canvas.height - 90, basketWidth, basketHeight);
+			ctx.drawImage(msg, msgX, msgY, 280, 280);
+			requestAnimationFrame(draw)
+		};
+
+		msg.onload = draw()
+	}
+</script>
+
+</body>
+</html>
